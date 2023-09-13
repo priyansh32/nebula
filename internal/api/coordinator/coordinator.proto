@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package coordinator;
+
+option go_package = "github.com/priyansh32/dkvs/api/coordinator";
+
+service CoordinatorAPI {
+    rpc AddStore(AddStoreRequest) returns (AddStoreResponse) {}
+    rpc RemoveStore(RemoveStoreRequest) returns (RemoveStoreResponse) {}
+    rpc Get(GetRequest) returns (GetResponse);
+    rpc Put(PutRequest) returns (PutResponse);
+    rpc Delete(DeleteRequest) returns (DeleteResponse);
+}
+
+enum StatusType {
+    OK = 0;
+    CACHE_MISS = 2;
+    ERROR = 3;
+}
+
+message AddStoreRequest {
+    string Name = 1;
+    string Address = 2;
+}
+
+message AddStoreResponse {
+    StatusType status = 1;
+}
+
+message RemoveStoreRequest {
+    string Name = 1;
+}
+
+message RemoveStoreResponse {
+    StatusType status = 1;
+}
+
+message GetRequest {
+    string key = 1;
+}
+
+message GetResponse {
+    StatusType status = 1; 
+    string value = 2;
+}
+
+message PutRequest {
+    string key = 1;
+    string value = 2;
+}
+
+message PutResponse {
+    StatusType status = 1;
+}
+
+message DeleteRequest {
+    string key = 1;
+}
+
+message DeleteResponse {
+    StatusType status = 1;
+}
