@@ -22,6 +22,7 @@ type StoreClient struct {
 func NewStoreClient(conn *grpc.ClientConn, name string) *StoreClient {
 	return &StoreClient{
 		name:   name,
+		conn:   conn,
 		client: pb_store.NewKeyValueStoreClient(conn),
 	}
 }
@@ -37,7 +38,7 @@ type COMMON_RESPONSES struct {
 type Coordinator struct {
 	ctx          context.Context
 	hashRing     *HashRing
-	StoreClients map[string]*StoreClient
+	storeClients map[string]*StoreClient
 	pb_coordinator.UnimplementedCoordinatorAPIServer
 }
 
@@ -55,7 +56,7 @@ func NewCoordinator(replicationFactor int) (*Coordinator, error) {
 	return &Coordinator{
 		ctx:          context.Background(),
 		hashRing:     NewHashRing(replicationFactor),
-		StoreClients: make(map[string]*StoreClient),
+		storeClients: make(map[string]*StoreClient),
 	}, nil
 }
 
@@ -131,7 +132,7 @@ func (c *Coordinator) AddStore(ctx context.Context, in *pb_coordinator.AddStoreR
 	}
 
 	storeClient := NewStoreClient(conn, name)
-	c.StoreClients[name] = storeClient
+	c.storeClients[name] = storeClient
 	c.hashRing.AddStoreNodes(storeClient)
 
 	return &pb_coordinator.AddStoreResponse{
@@ -141,9 +142,13 @@ func (c *Coordinator) AddStore(ctx context.Context, in *pb_coordinator.AddStoreR
 
 // removes nodes of a store from the hash ring
 func (c *Coordinator) RemoveStore(ctx context.Context, in *pb_coordinator.RemoveStoreRequest) (*pb_coordinator.RemoveStoreResponse, error) {
-	s := c.StoreClients[in.Name]
+	s := c.storeClients[in.Name]
 
-	defer s.conn.Close()
+	// remove the store from the store clients
+	delete(c.storeClients, in.Name)
+
+	// close the connection
+	s.conn.Close()
 
 	// remove the nodes from the hash ring
 	for _, key := range s.nodeKeys {
