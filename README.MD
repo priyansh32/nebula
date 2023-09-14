@@ -58,9 +58,8 @@ Follow these steps to get started with NEBULA (DKVS):
 4. Build the project components:
 
    ```bash
-    go build -o bin/coordinator cmd/coordinator/main.go
-    go build -o bin/cli cmd/cli/main.go
-    go build -o bin/store cmd/store/main.go
+    chmod +x ./build.sh
+    ./build.sh
    ```
 
 5. Run the coordinator:
