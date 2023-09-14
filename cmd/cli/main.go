@@ -9,6 +9,7 @@ import (
 
 	pb "github.com/priyansh32/dkvs/internal/api/coordinator"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 
 	address := os.Args[1]
 
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}

@@ -9,6 +9,7 @@ import (
 	pb_coordinator "github.com/priyansh32/dkvs/internal/api/coordinator"
 	pb_store "github.com/priyansh32/dkvs/internal/api/store"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type StoreClient struct {
@@ -126,7 +127,13 @@ func (c *Coordinator) AddStore(ctx context.Context, in *pb_coordinator.AddStoreR
 	address := in.Address
 	name := in.Name
 
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	// check if the store already exists with the given name
+	if _, ok := c.storeClients[name]; ok {
+		return nil, errors.New("duplicate store name")
+	}
+
+	// address is of the form <host>:<port>
+	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +173,7 @@ func InitCoordinator(rf int) error {
 		return err
 	}
 
-	lis, err := net.Listen("tcp", ":0")
+	lis, err := net.Listen("tcp", ":51234")
 	if err != nil {
 		return err
 	}
