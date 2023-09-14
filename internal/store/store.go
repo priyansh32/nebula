@@ -51,7 +51,7 @@ func (s *store) Delete(ctx context.Context, in *pb.DeleteRequest) (*pb.DeleteRes
 	return &pb.DeleteResponse{Status: pb.StatusType_OK}, nil
 }
 
-func StartGRPCServer(address string) error {
+func StartStoreServer(address string) error {
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

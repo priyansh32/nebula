@@ -28,14 +28,6 @@ func NewStoreClient(conn *grpc.ClientConn, name string) *StoreClient {
 	}
 }
 
-type COMMON_RESPONSES struct {
-	GET_err    *pb_coordinator.GetResponse
-	PUT_err    *pb_coordinator.PutResponse
-	DELETE_err *pb_coordinator.DeleteResponse
-
-	GET_cache_miss *pb_coordinator.GetResponse
-}
-
 type Coordinator struct {
 	ctx          context.Context
 	hashRing     *HashRing
@@ -151,6 +143,10 @@ func (c *Coordinator) AddStore(ctx context.Context, in *pb_coordinator.AddStoreR
 func (c *Coordinator) RemoveStore(ctx context.Context, in *pb_coordinator.RemoveStoreRequest) (*pb_coordinator.RemoveStoreResponse, error) {
 	s := c.storeClients[in.Name]
 
+	if s == nil {
+		return nil, errors.New("store " + in.Name + " does not exist")
+	}
+
 	// remove the store from the store clients
 	delete(c.storeClients, in.Name)
 
@@ -160,6 +156,7 @@ func (c *Coordinator) RemoveStore(ctx context.Context, in *pb_coordinator.Remove
 	// remove the nodes from the hash ring
 	for _, key := range s.nodeKeys {
 		delete(c.hashRing.nodes, key)
+		c.hashRing.sortedKeys = removeSorted(c.hashRing.sortedKeys, key)
 	}
 
 	return &pb_coordinator.RemoveStoreResponse{
@@ -167,13 +164,13 @@ func (c *Coordinator) RemoveStore(ctx context.Context, in *pb_coordinator.Remove
 	}, nil
 }
 
-func InitCoordinator(rf int) error {
+func InitCoordinator(port string, rf int) error {
 	cdr, err := NewCoordinator(rf)
 	if err != nil {
 		return err
 	}
 
-	lis, err := net.Listen("tcp", ":51234")
+	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		return err
 	}

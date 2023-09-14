@@ -1,41 +1,28 @@
 package coordinator
 
 import (
-	// "hash/fnv"
-
-	"crypto/sha256"
-	"encoding/binary"
 	"errors"
+	"sort"
 
 	"github.com/google/uuid"
 )
 
 type node struct {
-	hash        uint64
 	storeClient *StoreClient
 }
 
 type HashRing struct {
 	nodes             map[uint64]*node
+	sortedKeys        []uint64
 	replicationFactor int
 }
 
-func NewHashRing(r int) *HashRing {
+func NewHashRing(rf int) *HashRing {
 	return &HashRing{
 		nodes:             make(map[uint64]*node),
-		replicationFactor: r,
+		sortedKeys:        make([]uint64, 0),
+		replicationFactor: rf,
 	}
-}
-
-// hashKey hashes the key to determine its position on the ring
-func hashKey(key string) uint64 {
-	hasher := sha256.New()
-	hasher.Write([]byte(key))
-	hashBytes := hasher.Sum(nil)
-	// Take the first 8 bytes (64 bits) and convert to uint64
-	truncatedHash := binary.BigEndian.Uint64(hashBytes[:8])
-
-	return truncatedHash
 }
 
 // adds a store to the ring with count nodes
@@ -46,17 +33,20 @@ func (hr *HashRing) AddStoreNodes(s *StoreClient) {
 		// identify the position of the node on the ring
 		hash := hashKey(s.name + "-" + uuid.New().String())
 
-		n := node{
-			hash:        hash,
+		hr.nodes[hash] = &node{
 			storeClient: s,
 		}
 
-		hr.nodes[hash] = &n
+		// add the node to the sorted keys
+		// high cost operation at insertion is fine
+		// since this is done very few times compared to reads
+		hr.sortedKeys = insertSorted(hr.sortedKeys, hash)
 		s.nodeKeys = append(s.nodeKeys, hash)
 	}
 }
 
 // finds the store for the given key
+// this operation is O(log n), n = number of nodes in the ring
 func (hr *HashRing) GetStore(key string) (*StoreClient, error) {
 	hash := hashKey(key)
 
@@ -66,26 +56,15 @@ func (hr *HashRing) GetStore(key string) (*StoreClient, error) {
 
 	var s *StoreClient
 
-	var diff uint64
-	diff = ^uint64(0)
+	// find upper bound of hash in sortedKeys, if not found return the first element
+	index := sort.Search(len(hr.sortedKeys), func(i int) bool {
+		return hr.sortedKeys[i] >= hash
+	})
 
-	for _, v := range hr.nodes {
-
-		var curr uint64
-
-		if v.hash >= hash {
-			curr = v.hash - hash
-		} else {
-			// wrap around
-			curr = hash - v.hash
-			curr = ^curr
-		}
-
-		// find the node with the smallest difference forward
-		if diff > curr {
-			diff = curr
-			s = v.storeClient
-		}
+	if index < len(hr.sortedKeys) {
+		s = hr.nodes[hr.sortedKeys[index]].storeClient
+	} else {
+		s = hr.nodes[hr.sortedKeys[0]].storeClient
 	}
 
 	return s, nil

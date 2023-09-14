@@ -66,7 +66,7 @@ Follow these steps to get started with NEBULA (DKVS):
 5. Run the coordinator:
 
    ```bash
-    ./bin/coordinator
+    ./bin/coordinator <port> <replication-factor>
    ```
 
 6. Run the store:
@@ -84,7 +84,6 @@ Follow these steps to get started with NEBULA (DKVS):
    ```
 
    the coordinator address is the address of the coordinator in the format `host:port`.
-   by default, the coordinator runs on `localhost:51234`.
 
 ## Usage
 

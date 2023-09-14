@@ -16,7 +16,7 @@ func main() {
 		return
 	}
 
-	err := store.StartGRPCServer(":" + args[0])
+	err := store.StartStoreServer(":" + args[0])
 	if err != nil {
 		panic(err)
 	}
