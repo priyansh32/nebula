@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/priyansh32/dkvs/internal/coordinator"
+	"github.com/priyansh32/nebula/internal/coordinator"
 )
 
 func main() {

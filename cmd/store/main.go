@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/priyansh32/dkvs/internal/store"
+	"github.com/priyansh32/nebula/internal/store"
 )
 
 func main() {

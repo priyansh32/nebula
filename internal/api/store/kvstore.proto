@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package store;
 
-option go_package = "github.com/priyansh32/dkvs/api/store";
+option go_package = "github.com/priyansh32/nebula/api/store";
 
 service KeyValueStore {
     rpc Get(GetRequest) returns (GetResponse);

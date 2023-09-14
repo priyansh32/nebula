@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/priyansh32/dkvs/internal/api/store"
+	pb "github.com/priyansh32/nebula/internal/api/store"
 	"google.golang.org/grpc"
 )
 

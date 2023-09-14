@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	pb "github.com/priyansh32/dkvs/internal/api/coordinator"
+	pb "github.com/priyansh32/nebula/internal/api/coordinator"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -63,7 +63,7 @@ func makerequest(command string, client pb.CoordinatorAPIClient) {
 			Name:    tokens[2],
 		})
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(err.Error())
 			return
 		}
 		fmt.Println("Added store: ", tokens[2], " with status: ", res.Status)
@@ -78,7 +78,7 @@ func makerequest(command string, client pb.CoordinatorAPIClient) {
 			Value: tokens[2],
 		})
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(err.Error())
 			return
 		}
 		fmt.Println("Status: ", res.Status)
@@ -92,7 +92,7 @@ func makerequest(command string, client pb.CoordinatorAPIClient) {
 			Key: tokens[1],
 		})
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(err.Error())
 			return
 		}
 		if res.Status == pb.StatusType_OK {
@@ -110,7 +110,7 @@ func makerequest(command string, client pb.CoordinatorAPIClient) {
 			Key: tokens[1],
 		})
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(err.Error())
 			return
 		}
 		fmt.Println("Status: ", res.Status)
@@ -124,7 +124,7 @@ func makerequest(command string, client pb.CoordinatorAPIClient) {
 			Name: tokens[1],
 		})
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(err.Error())
 			return
 		}
 		fmt.Println("Status: ", res.Status)

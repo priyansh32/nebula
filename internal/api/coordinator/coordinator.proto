@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package coordinator;
 
-option go_package = "github.com/priyansh32/dkvs/api/coordinator";
+option go_package = "github.com/priyansh32/nebula/api/coordinator";
 
 service CoordinatorAPI {
     rpc AddStore(AddStoreRequest) returns (AddStoreResponse) {}

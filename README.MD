@@ -46,7 +46,7 @@ Follow these steps to get started with NEBULA (DKVS):
 2. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/priyansh32/dkvs.git
+   git clone https://github.com/priyansh32/nebula.git
    ```
 
 3. Install the dependencies:

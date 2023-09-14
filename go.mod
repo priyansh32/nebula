@@ -1,4 +1,4 @@
-module github.com/priyansh32/dkvs
+module github.com/priyansh32/nebula
 
 go 1.21.0
 

@@ -6,8 +6,8 @@ import (
 	"log"
 	"net"
 
-	pb_coordinator "github.com/priyansh32/dkvs/internal/api/coordinator"
-	pb_store "github.com/priyansh32/dkvs/internal/api/store"
+	pb_coordinator "github.com/priyansh32/nebula/internal/api/coordinator"
+	pb_store "github.com/priyansh32/nebula/internal/api/store"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
