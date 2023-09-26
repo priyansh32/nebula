@@ -11,20 +11,16 @@ import (
 func main() {
 
 	if len(os.Args) != 3 {
-		fmt.Println("Usage: coordinator <port> <replication_factor>")
-		return
+		fmt.Println("Usage: coordinator <port> <replication-factor>")
+		os.Exit(1)
 	}
 
 	coordinatorPort := os.Args[1]
 	replicationFactor, err := strconv.Atoi(os.Args[2])
 	if err != nil {
-		panic(err)
+		fmt.Println("Replication factor must be an integer")
+		os.Exit(1)
 	}
 
-	// parse the replication factor
-
-	err = coordinator.InitCoordinator(coordinatorPort, replicationFactor) // Blocking call
-	if err != nil {
-		panic(err)
-	}
+	coordinator.InitCoordinator(coordinatorPort, replicationFactor) // Blocking call
 }

@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-const DEFAULT_CAPACITY = 7
+const DEFAULT_CAPACITY uint32 = 1024 * 1024
 
 type store struct {
 	cache *LRUCache
@@ -26,12 +26,13 @@ func (s *store) Get(ctx context.Context, in *pb.GetRequest) (*pb.GetResponse, er
 
 	// get the value from the cache
 	value, err := s.cache.Get(in.Key)
-	log.Printf("Got key: %s, value: %s\n", in.Key, value)
 
 	if err != nil {
+		log.Printf("Cache miss for key: %s\n", in.Key)
 		return &pb.GetResponse{Status: pb.StatusType_CACHE_MISS, Value: value}, nil
 	}
 
+	log.Printf("Cache hit for key: %s, value: %s\n", in.Key, value)
 	return &pb.GetResponse{Status: pb.StatusType_OK, Value: value}, nil
 }
 
@@ -51,22 +52,18 @@ func (s *store) Delete(ctx context.Context, in *pb.DeleteRequest) (*pb.DeleteRes
 	return &pb.DeleteResponse{Status: pb.StatusType_OK}, nil
 }
 
-func StartStoreServer(address string) error {
+func InitStoreServer(address string, capacity uint32) {
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
-		return err
 	}
 
 	gRPCServer := grpc.NewServer()
-	pb.RegisterKeyValueStoreServer(gRPCServer, NewStore(DEFAULT_CAPACITY))
+	pb.RegisterKeyValueStoreServer(gRPCServer, NewStore(capacity))
 
 	log.Printf("starting gRPC server on %s", address)
 
 	if err := gRPCServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %s", err)
-		return err
 	}
-
-	return nil
 }

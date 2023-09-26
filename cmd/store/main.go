@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/priyansh32/nebula/internal/store"
@@ -11,15 +11,12 @@ func main() {
 
 	args := os.Args[1:]
 
-	if len(args) != 1 {
-		fmt.Println("Usage: store <port>")
-		return
+	if len(args) < 1 {
+		log.Fatalf("Usage: store <port>")
 	}
 
-	err := store.StartStoreServer(":" + args[0])
-	if err != nil {
-		panic(err)
-	}
+	port := args[0]
+	capacity := store.DEFAULT_CAPACITY
 
-	fmt.Println("Server started successfully")
+	store.InitStoreServer(":"+port, uint32(capacity)) // blocking call
 }

@@ -164,15 +164,15 @@ func (c *Coordinator) RemoveStore(ctx context.Context, in *pb_coordinator.Remove
 	}, nil
 }
 
-func InitCoordinator(port string, rf int) error {
+func InitCoordinator(port string, rf int) {
 	cdr, err := NewCoordinator(rf)
 	if err != nil {
-		return err
+		log.Fatalf("Failed to create coordinator: %s", err)
 	}
 
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
-		return err
+		log.Fatalf("Failed to start TCP listener: %s", err)
 	}
 
 	log.Printf("coordinator listening on port: %d\n", lis.Addr().(*net.TCPAddr).Port)
@@ -181,8 +181,6 @@ func InitCoordinator(port string, rf int) error {
 	pb_coordinator.RegisterCoordinatorAPIServer(gRPCServer, cdr)
 
 	if err := gRPCServer.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %s", err)
+		log.Fatalf("Failed to start gRPC server: %s", err)
 	}
-
-	return nil
 }

@@ -23,7 +23,8 @@ func main() {
 
 	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		panic(err)
+		fmt.Println("Error connecting to coordinator: ", err.Error())
+		os.Exit(1)
 	}
 
 	defer conn.Close()
